@@ -49,16 +49,16 @@ labels = lbl_enc.fit_transform(labels)
 
 # train a random forest classifier
 print('starting classification ... ')
-# clf = ensemble.RandomForestClassifier(n_jobs=config.cores, n_estimators=config.estimators)
-# clf.fit(train, labels)
+clf = ensemble.RandomForestClassifier(n_jobs=config.cores, n_estimators=config.estimators)
+clf.fit(train, labels)
 
-# predict on test set
-# preds = clf.predict_proba(test)
+predict on test set
+preds = clf.predict_proba(test)
 
 # create submission file
 timestr = time.strftime("%m%d-%H%M%S")
-# preds = pd.DataFrame(preds, index=sample.id.values, columns=sample.columns[1:])
-# preds.to_csv('./submissions/random-forest-'+timestr+'.csv', index_label='id')
+preds = pd.DataFrame(preds, index=sample.id.values, columns=sample.columns[1:])
+preds.to_csv('./submissions/random-forest-'+timestr+'.csv', index_label='id')
 
 # Write config data
 data = dict(
