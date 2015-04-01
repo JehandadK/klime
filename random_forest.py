@@ -1,7 +1,7 @@
 # Random Forest implementation to match and compare results in R
 # Is MultiThread or MultiCore? No
 # Is GPGPU? No
-
+from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import ensemble, feature_extraction, preprocessing
 import pandas as pd
@@ -18,8 +18,10 @@ train = pd.read_csv('data/train.csv')
 test = pd.read_csv('data/test.csv')
 sample = pd.read_csv('submissions/sampleSubmission.csv')
 labels = train.target.values
+ids = train.id.values
 train = train.drop('id', axis=1)
 train = train.drop('target', axis=1)
+train_orig = train
 test = test.drop('id', axis=1)
 
 
@@ -52,8 +54,11 @@ print('starting classification ... ')
 clf = ensemble.RandomForestClassifier(n_jobs=config.cores, n_estimators=config.estimators)
 clf.fit(train, labels)
 
-predict on test set
+# predict on test set
 preds = clf.predict_proba(test)
+train_pred = clf.predict(tfidf.transform(train_orig))
+labels[2] = 'Class_9'
+config.score = classification_report(train_pred, labels)
 
 # create submission file
 timestr = time.strftime("%m%d-%H%M%S")

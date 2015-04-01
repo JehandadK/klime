@@ -1,0 +1,11 @@
+config:
+  cores: 4
+  estimators: 300
+  os: darwin
+  pc_cores: 4
+  pc_location: office
+  pc_owner: jd
+  pc_type: mac
+elapsedSeconds: 85.53818416595459
+end_time: Apr 01 2015 21:00:33
+start_time: Apr 01 2015 15:59:08
