@@ -32,8 +32,8 @@ class Foo(object):
     pass
 
 config = Foo()
-config.estimators = 300
-config.cores = 4
+config.estimators = 100
+config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
 config.pc_type = 'mac'
 config.pc_location = 'office'
@@ -57,7 +57,6 @@ clf.fit(train, labels)
 # predict on test set
 preds = clf.predict_proba(test)
 train_pred = clf.predict(tfidf.transform(train_orig))
-labels[2] = 'Class_9'
 config.score = classification_report(train_pred, labels)
 
 # create submission file
