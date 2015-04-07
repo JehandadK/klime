@@ -1,59 +1,80 @@
-# Requires graphlab server which is paid tool
+# Random Forest implementation to match and compare results in R
+# Is MultiThread or MultiCore? Yes
+# Is GPGPU? No
+from sklearn.metrics import classification_report
+from sklearn import ensemble, feature_extraction, preprocessing
+import pandas as pd
+import time
+import yaml
+import sys
+import psutil
 
-import graphlab as gl
-import math
-import random
- 
-train = gl.SFrame.read_csv('data/train.csv')
-test = gl.SFrame.read_csv('data/test.csv')
-del train['id']
- 
-def make_submission(m, test, filename):
-    preds = m.predict_topk(test, output_type='probability', k=9)
-    preds['id'] = preds['id'].astype(int) + 1
-    preds = preds.unstack(['class', 'probability'], 'probs').unpack('probs', '')
-    preds = preds.sort('id')
-    preds.save(filename)
- 
-def multiclass_logloss(model, test):
-    preds = model.predict_topk(test, output_type='probability', k=9)
-    preds = preds.unstack(['class', 'probability'], 'probs').unpack('probs', '')
-    preds['id'] = preds['id'].astype(int) + 1
-    preds = preds.sort('id')
-    preds['target'] = test['target']
-    neg_log_loss = 0
-    for row in preds:
-        label = row['target']
-        neg_log_loss += - math.log(row[label])
-    return  neg_log_loss / preds.num_rows()
- 
-def shuffle(sf):
-    sf['_id'] = [random.random() for i in xrange(sf.num_rows())]
-    sf = sf.sort('_id')
-    del sf['_id']
-    return sf
- 
-def evaluate_logloss(model, train, valid):
-    return {'train_logloss': multiclass_logloss(model, train),
-            'valid_logloss': multiclass_logloss(model, valid)}
- 
-params = {'target': 'target',
-          'max_iterations': 200,
-          'max_depth': 12,
-          'min_child_weight': 4,
-          'row_subsample': .9,
-          'min_loss_reduction': 1,
-          'column_subsample': .8,
-          'validation_set': None}
- 
-train = shuffle(train)
- 
-# Check performance on internal validation set
-tr, va = train.random_split(.8)
-m = gl.boosted_trees_classifier.create(tr, **params)
-print evaluate_logloss(m, tr, va)
- 
-# Make final submission by using full training set
-m = gl.boosted_trees_classifier.create(train, **params)
+startTime = time.time()
+
+# load data
+train = pd.read_csv('data/train.csv')
+test = pd.read_csv('data/test.csv')
+sample = pd.read_csv('submissions/sampleSubmission.csv')
+labels = train.target.values
+ids = train.id.values
+train = train.drop('id', axis=1)
+train = train.drop('target', axis=1)
+train_orig = train
+test = test.drop('id', axis=1)
+
+
+# configure
+# check the models configuration required parameters and set default parameters
+# ideally dont use defaults, always send through args
+class Foo(object):
+    pass
+
+
+config = Foo()
+config.estimators = 100
+config.cores = psutil.cpu_count()
+config.pc_owner = 'jd'
+config.pc_type = 'linux'
+config.pc_location = 'ec2'
+config.os = sys.platform
+config.pc_cores = psutil.cpu_count()
+config.name = './submissions/gradient-classifier-'
+
+# transform counts to TFIDF features
+tfidf = feature_extraction.text.TfidfTransformer()
+train = tfidf.fit_transform(train).toarray()
+test = tfidf.transform(test).toarray()
+
+# encode labels 
+lbl_enc = preprocessing.LabelEncoder()
+labels = lbl_enc.fit_transform(labels)
+
+# train a random forest classifier
+print('starting classification ... ')
+clf = ensemble.GradientBoostingClassifier(n_jobs=config.cores, n_estimators=config.estimators)
+clf.fit(train, labels)
+
+# predict on test set
+preds = clf.predict_proba(test)
+train_pred = clf.predict(tfidf.transform(train_orig))
+config.score = classification_report(train_pred, labels)
+
+# create submission file
 timestr = time.strftime("%m%d-%H%M%S")
-make_submission(m, test, './submissions/boosted-trees-'+timestr+'.csv')
+preds = pd.DataFrame(preds, index=sample.id.values, columns=sample.columns[1:])
+preds.to_csv(config.name + timestr + '.csv', index_label='id')
+
+# Write config data
+data = dict(
+    start_time=time.strftime("%b %d %Y %H:%M:%S", time.gmtime(startTime)),
+    end_time=time.strftime("%b %d %Y %H:%M:%S"),
+    elapsedSeconds=time.time() - startTime,
+    config=config.__dict__
+)
+with open(config.name + timestr + '.yaml', 'w') as outfile:
+    outfile.write(yaml.dump(data, default_flow_style=False))
+
+print yaml.dump(data, allow_unicode=True, default_flow_style=False)
+
+# use boto api to upload results, model, running configg and accuracy to S3 OR 
+# push to git    
