@@ -4,10 +4,11 @@
 from sklearn.metrics import classification_report
 from sklearn import ensemble, feature_extraction, preprocessing
 import pandas as pd
-import time
+import time, scipy.sparse
 import yaml
 import sys
 import psutil
+import random
 
 startTime = time.time()
 
@@ -21,7 +22,8 @@ train = train.drop('id', axis=1)
 train = train.drop('target', axis=1)
 train_orig = train
 test = test.drop('id', axis=1)
-
+# TODO: use arguments to configure
+# TODO: transfer shared code to initialization pythons script
 
 # configure
 # check the models configuration required parameters and set default parameters
@@ -31,13 +33,13 @@ class Foo(object):
 
 
 config = Foo()
-config.estimators = 100
+config.estimators = 500
 config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
-config.pc_type = 'linux'
-config.pc_location = 'ec2'
+config.pc_location = 'office'
 config.os = sys.platform
 config.pc_cores = psutil.cpu_count()
+config.shffle = 'true'
 config.name = './submissions/gradient-classifier-'
 
 # transform counts to TFIDF features
@@ -45,18 +47,20 @@ tfidf = feature_extraction.text.TfidfTransformer()
 train = tfidf.fit_transform(train).toarray()
 test = tfidf.transform(test).toarray()
 
+random.shuffle(train)
 # encode labels 
 lbl_enc = preprocessing.LabelEncoder()
 labels = lbl_enc.fit_transform(labels)
 
 # train a random forest classifier
-print('starting classification ... ')
+print('starting training ... ')
 clf = ensemble.GradientBoostingClassifier( n_estimators=config.estimators)
 clf.fit(train, labels)
 
 # predict on test set
+print('starting prediction ... ')
 preds = clf.predict_proba(test)
-train_pred = clf.predict(tfidf.transform(train_orig))
+train_pred = clf.predict(tfidf.transform(train_orig).toarray())
 config.score = classification_report(train_pred, labels)
 
 # create submission file

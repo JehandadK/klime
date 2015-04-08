@@ -1,0 +1,19 @@
+config:
+  cores: 4
+  estimators: 100
+  name: ./submissions/gradient-classifier-
+  os: darwin
+  pc_cores: 4
+  pc_location: office
+  pc_owner: jd
+  score: "             precision    recall  f1-score   support\n\n          0    \
+    \   0.54      0.76      0.63      1360\n          1       0.86      0.72     \
+    \ 0.78     19321\n          2       0.50      0.62      0.55      6439\n     \
+    \     3       0.44      0.76      0.55      1536\n          4       0.98     \
+    \ 0.97      0.97      2773\n          5       0.94      0.94      0.94     14166\n\
+    \          6       0.68      0.77      0.72      2498\n          7       0.93\
+    \      0.90      0.91      8706\n          8       0.88      0.86      0.87  \
+    \    5079\n\navg / total       0.83      0.81      0.82     61878\n"
+elapsedSeconds: 621.5155289173126
+end_time: Apr 08 2015 20:48:03
+start_time: Apr 08 2015 15:37:42

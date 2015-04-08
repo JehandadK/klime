@@ -31,7 +31,7 @@ class Foo(object):
 
 
 config = Foo()
-config.estimators = 100
+config.estimators = 50
 config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
 config.pc_type = 'mac'
@@ -46,7 +46,7 @@ test = tfidf.transform(test).toarray()
 
 # encode labels 
 lbl_enc = preprocessing.LabelEncoder()
-labels = lbl_enc.fit_transform(labels)
+labels = lbl_enc.fit_transform(labels).toarray()
 
 # train a random forest classifier
 print('starting classification ... ')
