@@ -11,11 +11,20 @@ import psutil
 import random
 
 startTime = time.time()
-
+def shuffle(df, n=1, axis=0):     
+        df = df.copy()
+       	for _ in range(n):
+            df.apply(np.random.shuffle, axis=axis)
+        return df
+        
 # load data
 train = pd.read_csv('data/train.csv')
 test = pd.read_csv('data/test.csv')
 sample = pd.read_csv('submissions/sampleSubmission.csv')
+
+# shuffle before continuing
+shuffle(train)
+
 labels = train.target.values
 ids = train.id.values
 train = train.drop('id', axis=1)
@@ -33,13 +42,17 @@ class Foo(object):
 
 
 config = Foo()
-config.estimators = 100
+config.estimators = 300
 config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
 config.pc_location = 'office'
 config.os = sys.platform
 config.pc_cores = psutil.cpu_count()
 config.shffle = 'true'
+config.learning_rate = 0.05
+config.max_depth = 5
+config.verbose = 1
+config.comment ='Increased Max depth from last model'
 config.name = './submissions/gradient-classifier-'
 
 # transform counts to TFIDF features
@@ -47,14 +60,19 @@ tfidf = feature_extraction.text.TfidfTransformer()
 train = tfidf.fit_transform(train).toarray()
 test = tfidf.transform(test).toarray()
 
-random.shuffle(train)
+# Dont shuffle without shuffling labels
+# random.shuffle(train)
+
+#
+
 # encode labels 
 lbl_enc = preprocessing.LabelEncoder()
 labels = lbl_enc.fit_transform(labels)
 
 # train a random forest classifier
 print('starting training ... ')
-clf = ensemble.GradientBoostingClassifier( n_estimators=config.estimators)
+clf = ensemble.GradientBoostingClassifier( n_estimators=config.estimators, learning_rate=config.learning_rate,
+max_depth=config.max_depth, verbose=config.verbose )
 clf.fit(train, labels)
 
 # predict on test set
