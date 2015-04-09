@@ -33,7 +33,7 @@ class Foo(object):
 
 
 config = Foo()
-config.estimators = 500
+config.estimators = 100
 config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
 config.pc_location = 'office'

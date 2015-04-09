@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# Zip files compressed from of csv
+*.zip
+
 # C extensions
 *.so
 
