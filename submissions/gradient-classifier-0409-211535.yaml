@@ -1,0 +1,24 @@
+config:
+  comment: Increased Max depth from last model
+  cores: 4
+  estimators: 300
+  learning_rate: 0.05
+  max_depth: 5
+  name: ./submissions/gradient-classifier-
+  os: darwin
+  pc_cores: 4
+  pc_location: office
+  pc_owner: jd
+  score: "             precision    recall  f1-score   support\n\n          0    \
+    \   0.80      0.93      0.86      1659\n          1       0.91      0.82     \
+    \ 0.86     18048\n          2       0.69      0.78      0.73      7052\n     \
+    \     3       0.67      0.91      0.77      1971\n          4       1.00     \
+    \ 0.99      1.00      2757\n          5       0.97      0.97      0.97     14116\n\
+    \          6       0.83      0.89      0.86      2668\n          7       0.96\
+    \      0.95      0.95      8577\n          8       0.95      0.93      0.94  \
+    \    5030\n\navg / total       0.90      0.89      0.89     61878\n"
+  shffle: 'true'
+  verbose: 1
+elapsedSeconds: 3969.674942970276
+end_time: Apr 09 2015 21:15:38
+start_time: Apr 09 2015 15:09:29

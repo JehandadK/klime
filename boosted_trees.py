@@ -4,6 +4,7 @@
 from sklearn.metrics import classification_report
 from sklearn import ensemble, feature_extraction, preprocessing
 import pandas as pd
+import numpy as np
 import time, scipy.sparse
 import yaml
 import sys
@@ -42,7 +43,7 @@ class Foo(object):
 
 
 config = Foo()
-config.estimators = 300
+config.estimators = 800
 config.cores = psutil.cpu_count()
 config.pc_owner = 'jd'
 config.pc_location = 'office'
@@ -50,7 +51,7 @@ config.os = sys.platform
 config.pc_cores = psutil.cpu_count()
 config.shffle = 'true'
 config.learning_rate = 0.05
-config.max_depth = 5
+config.max_depth = 6
 config.verbose = 1
 config.comment ='Increased Max depth from last model'
 config.name = './submissions/gradient-classifier-'
